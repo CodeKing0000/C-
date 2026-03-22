@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+
+class Shape {
+    public:
+
+        Shape() = default;
+        virtual ~Shape() = default;
+        virtual float area() const = 0;
+};
+
+class Circle : public Shape {
+
+    float r;
+
+    public:
+
+        Circle(float radius) : r(radius) {};
+        ~Circle() = default;
+
+        float area() const override {
+            return  3.14 * r * r;
+        }
+};
+
+class Rectangle : public Shape {
+
+    float a;
+    float b;
+
+    public:
+
+        Rectangle(float side_1, float side_2) : a(side_1), b(side_2) {};
+        ~Rectangle() = default;
+
+        float area() const override {
+            return  a * b;
+        }
+};
+
+int main() {
+    Shape* shapes[2];
+    shapes[0] = new Circle(5.0);
+    shapes[1] = new Rectangle(4.0, 3.0);
+
+    for (int i = 0; i < 2; i++) {
+        std::cout << shapes[i]->area() << "\n";
+    }
+    delete shapes[1];
+    delete shapes[2];
+
+    return 0;
+}
