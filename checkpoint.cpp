@@ -1,71 +1,124 @@
-// std::getline(std::cin, s)
-// setlocale(LC_ALL, "ru")
-
 #include <iostream>
 #include <string>
 #include <vector>
-#include <random>
 
-std::string phrase_1_male = "Однажды, в одном королевстве, родился один, ничем не примечательный ребенок. Детство его прошло беззаботно, однако когда ему исполнилось 22 года, его королевство охватила война. Король погиб. И чтобы спасти королевство, он решил поднять восстание, однако ему нужны были деньги, и единственный выход был, это найти сокровище которое закопал давно погибший отец.";
-std::string phrase_1_female = "Однажды, в одном королевстве, родился один, ничем не примечательный ребенок. Детство ее прошло беззаботно, однако когда ей исполнилось 22 года, ее королевство охватила война. Король погиб. И чтобы спасти королевство, она решила поднять восстание, однако ее нужны были деньги, и единственный выход был, это найти сокровище которое закопал давно погибший отец.";
-std::string phrase_2_male = "Когда он нашел сокровище, он купил на эти деньги оружие и одежду людям. И вместе они смогли закончить войну, победив.";
-std::string phrase_2_female = "Когда она нашела сокровище, она купила на эти деньги оружие и одежду людям. И вместе они смогли закончить войну, победив.";
+class Expense {
 
-int random_number(int size) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(0, size - 1);
+    protected:
 
-        int random_number = distrib(gen);
-        return random_number;
+    std::string name;
+    int amount;
+
+    public:
+
+    Expense(std::string n, int a) : name(n), amount(a) {}
+    virtual ~Expense() = default;
+
+    virtual void get_category() = 0;
+
+    void describe() {
+        std::cout << name << std::endl;
+        get_category();
+        std::cout << amount << std::endl;
     }
-int chest = random_number();
 
-void game(int answer, int map, int sex, int phrase_2_male, int phrase_2_female) {
-        
-        if(0 <= answer < size) {
-            while(map.at(answer) != 1) {
-                std::cout << "Введите номер клетки: ";
-                std::cin >> answer;
-                if(map.at(answer) == 1) {
-                std::cout << "Поздравляем! Вы нашли сундук с деньгами!" << "\n";
-                    if(sex == "мужчина") {
-                        std::cout << phrase_2_male;
-                    }
-                    if(sex == "женщина") {
-                        std::cout << phrase_2_female;
-                    }
+    std::string get_name() { return name; }
+    int get_amount() { return amount; }
+    
+};
+
+class Groceries : public Expense {
+    public:
+    Groceries(std::string n, int a) : Expense(n, a) {}
+    void get_category() override { std::cout << "Продукты питания" << std::endl; }
+};
+class Clothes : public Expense {
+    public:
+    Clothes(std::string n, int a) :  Expense(n, a) {}
+    void get_category() override { std::cout << "Одежда" << std::endl; }
+};
+
+int main() {
+    std::vector <Expense*> expenses;
+    std::string cmd;
+    bool a = true;
+
+    while(a) {
+        std::cout << "Metods: add, delete, list, total, exit" << std::endl;
+        std::cout << "Metod: ";
+        std::cin >> cmd;
+
+        if(cmd == "add") {
+            std::string temp_category;
+            std::string temp_name;
+            int temp_amount;
+            std::cout << "Category ( clothes, groceries ): ";
+            std::cin >> temp_category;
+            std::cout << "Good: ";
+            std::cin >> temp_name;
+            std::cout << "Price: ";
+            std::cin >> temp_amount;
+
+            Expense* e = nullptr;
+
+            if(temp_category == "clothes") {
+                e = new Clothes(temp_name, temp_amount);
+                expenses.push_back(e);
+            }
+            else if(temp_category == "groceries") {
+               e = new Groceries(temp_name, temp_amount);
+                expenses.push_back(e);
+            }
+            else {
+                std::cout << "There is no such category!" << std::endl;
+            }
+        }
+
+        else if(cmd == "delete") {
+            std::string temp;
+            std::cout << "Which expense do you want delete: ";
+            std::cin >> temp;
+            for(int i = 0; i < expenses.size(); i++) {
+                if(expenses.at(i)->get_name() == temp) {
+                    delete expenses.at(i);
+                    std::cout << "Expence have already deleted!" << std::endl;
                 }
             }
         }
+        else if(cmd == "list") {
+            int result;
+            for(int i = 0; i < expenses.size(); i++) {
+                std::cout << expenses.at(i)->get_name() << " - " << expenses.at(i)->get_amount() << std::endl;
+                result += expenses.at(i)->get_amount();
+            }
+            std::cout << "Total: " << result << std::endl;
+        }
+        else if(cmd == "total") {
+            int result;
+            for(int i = 0; i < expenses.size(); i++) {
+                result += expenses.at(i)->get_amount();
+            }
+            std::cout << "Total: " << result << std::endl;
+        }
+        else if(cmd == "exit") {
+            a = false;
+        }
         else {
-            abort();
-        } 
-}
-
-int main() {
-    int answer;
-    int size;
-    int chest;
-    std::string sex;
-
-    std::cout << "Игра Chest Quest" << "\n\n";
-    std::cout << "Введите эти данные для комфортной игры:" << "\n";
-    std::cout << "Пол персонажа 'мужчина' или 'женщина': ";
-    std::cin >> sex;
-    std::cout << "Размер игрового поля:";
-    std::cin >> size;
-
-    std::vector <int> map(size);
-    random_number(size)
-    map.at(chest) = 1;
-
-    if(sex == "мужчина") {
-        std::cout << phrase_1_male << "\n";
+            std::cout << "There is no such metod!" << std::endl;
+        }
     }
-    if(sex == "женщина") {
-        std::cout << phrase_1_female << "\n";
-    }
-    game(answer, map, sex, phrase_2_male, phrase_2_female)
-
 }
+// Задание: Семейный бюджет
+// Идея
+// Программа считает расходы семьи. Каждый тип расхода — отдельный класс. В конце — отчёт: сколько потратили,
+// на что, у кого перерасход.
+
+// Структура
+// Базовый класс Expense:
+
+// поля: name, amount
+// виртуальный метод category() — возвращает строку
+// describe() — выводит инфо
+
+
+// работа с конолью через add …, delete, total, list
